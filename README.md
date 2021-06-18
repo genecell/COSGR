@@ -1,4 +1,4 @@
-# COSG (R version)
+## COSG in R
 
 Accurate and fast cell marker gene identification with COSG
 
@@ -12,3 +12,55 @@ COSG is a cosine similarity-based method for more accurate and scalable marker g
 The method and benchmarking results are described in [Dai et al., (2021)](https://www.biorxiv.org/content/10.1101/2021.06.15.448484v1).
 
 Here is the R version for COSG, and the python version is hosted in https://github.com/genecell/COSG.
+
+### Installation
+
+```
+# install.packages('remotes')
+remotes::install_github(repo = 'genecell/COSGR')
+```
+
+### Usage
+
+Please check out the [vignette](https://github.com/genecell/COSGR/blob/master/vignettes/quick_start.Rmd) and the [PBMC10K tutorial](https://github.com/genecell/COSGR/blob/master/vignettes/pbmc10k_tutorial_cosg.Rmd) to get started.
+
+```
+suppressMessages(library(Seurat))
+data('pbmc_small',package='Seurat')
+# Check cell groups:
+table(Idents(pbmc_small))
+#> 
+#>  0  1  2 
+#> 36 25 19 
+#######
+# Run COSG:
+marker_cosg <- cosg(
+ pbmc_small,
+ groups='all',
+ assay='RNA',
+ slot='data',
+ mu=1,
+ n_genes_user=100)
+#######
+# Check the marker genes:
+ head(marker_cosg$names)
+#>       0      1     2
+#> 1   CD7 S100A8 MS4A1
+#> 2  CCL5   TYMP CD79A
+#> 3  GNLY S100A9 TCL1A
+#> 4 LAMP1  FCGRT  NT5C
+#> 5  GZMA IFITM3 CD79B
+#> 6   LCK   LST1 FCER2
+ head(marker_cosg$scores)
+#>           0         1         2
+#> 1 0.6391917 0.8954042 0.6922908
+#> 2 0.6391267 0.8312083 0.5832425
+#> 3 0.6328148 0.8120045 0.5757478
+#> 4 0.6164937 0.7755955 0.5533107
+#> 5 0.5846589 0.7413060 0.5163446
+#> 6 0.5795238 0.7380483 0.5115180
+```
+
+### Citation
+
+If COSG is useful for your research, please consider citing [Dai et al., (2021)](https://www.biorxiv.org/content/10.1101/2021.06.15.448484v1).

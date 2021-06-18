@@ -38,10 +38,7 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="articles/install.html">Install</a>
-</li>
-<li>
-  <a href="articles/get_started.html">Get started</a>
+  <a href="articles/quick_start.html">Get started</a>
 </li>
 <li>
   <a href="reference/index.html">Reference</a>
@@ -54,14 +51,14 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/pbmc3k_tutorial.html">PBMC 3K guided tutorial</a>
+      <a href="articles/pbmc10k_tutorial_cosg.html">PBMC 10K guided tutorial</a>
     </li>
   </ul>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="./index.html">
+  <a href="articles/index.html">
     <span class="fa fa-home"></span>
      
   </a>
@@ -84,7 +81,69 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-COSG is designed for accurate and ultra-fast marker gene identification in single-cell sequencing data. COSG can not only be applied to single-cell RNA-seq data, but also single-cell ATAC-seq data and spatial transcriptomics.
+<div id="cosg-in-r" class="section level2">
+<h2 class="hasAnchor">
+<a href="#cosg-in-r" class="anchor"></a>COSG in R</h2>
+<p>Accurate and fast cell marker gene identification with COSG</p>
+<p>COSG is a cosine similarity-based method for more accurate and scalable marker gene identification.</p>
+<ul>
+<li>COSG is a general method for cell marker gene identification across different data modalities, e.g., scRNA-seq, scATAC-seq and spatially resolved transcriptome data.</li>
+<li>Marker genes or genomic regions identified by COSG are more indicative and with greater cell-type specificity.</li>
+<li>COSG is ultrafast for large-scale datasets, and is capable of identifying marker genes for one million cells in less than two minutes.</li>
+</ul>
+<p>The method and benchmarking results are described in <a href="https://www.biorxiv.org/content/10.1101/2021.06.15.448484v1">Dai et al., (2021)</a>.</p>
+<p>Here is the R version for COSG, and the python version is hosted in <a href="https://github.com/genecell/COSG" class="uri">https://github.com/genecell/COSG</a>.</p>
+<div id="installation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h3>
+<pre><code><a href="https://remotes.r-lib.org/reference/install_github.html"># install.packages('remotes')
+remotes::install_github(repo = 'genecell/COSGR')</a></code></pre>
+</div>
+<div id="usage" class="section level3">
+<h3 class="hasAnchor">
+<a href="#usage" class="anchor"></a>Usage</h3>
+<p>Please check out the <a href="https://github.com/genecell/COSGR/blob/master/vignettes/quick_start.Rmd">vignette</a> and the <a href="https://github.com/genecell/COSGR/blob/master/vignettes/pbmc10k_tutorial_cosg.Rmd">PBMC10K tutorial</a> to get started.</p>
+<pre><code><a href="https://rdrr.io/r/base/message.html">suppressMessages(library(Seurat))
+data('pbmc_small',package='Seurat')
+# Check cell groups:
+table(Idents(pbmc_small))
+#&gt; 
+#&gt;  0  1  2 
+#&gt; 36 25 19 
+#######
+# Run COSG:
+marker_cosg &lt;- cosg(
+ pbmc_small,
+ groups='all',
+ assay='RNA',
+ slot='data',
+ mu=1,
+ n_genes_user=100)
+#######
+# Check the marker genes:
+ head(marker_cosg$names)
+#&gt;       0      1     2
+#&gt; 1   CD7 S100A8 MS4A1
+#&gt; 2  CCL5   TYMP CD79A
+#&gt; 3  GNLY S100A9 TCL1A
+#&gt; 4 LAMP1  FCGRT  NT5C
+#&gt; 5  GZMA IFITM3 CD79B
+#&gt; 6   LCK   LST1 FCER2
+ head(marker_cosg$scores)
+#&gt;           0         1         2
+#&gt; 1 0.6391917 0.8954042 0.6922908
+#&gt; 2 0.6391267 0.8312083 0.5832425
+#&gt; 3 0.6328148 0.8120045 0.5757478
+#&gt; 4 0.6164937 0.7755955 0.5533107
+#&gt; 5 0.5846589 0.7413060 0.5163446
+#&gt; 6 0.5795238 0.7380483 0.5115180</a></code></pre>
+</div>
+<div id="citation" class="section level3">
+<h3 class="hasAnchor">
+<a href="#citation" class="anchor"></a>Citation</h3>
+<p>If COSG is useful for your research, please consider citing <a href="https://www.biorxiv.org/content/10.1101/2021.06.15.448484v1">Dai et al., (2021)</a>.</p>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

@@ -1,0 +1,179 @@
+---
+title: "PBMC10K tutorial for COSG"
+author: "Min Dai"
+date: "2021/6/18"
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{PBMC10K tutorial for COSG}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8} 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Load the library
+
+```{r}
+library(COSG) 
+library(Seurat)
+```
+
+### Load the data
+
+Download data from 10x Genomics:
+```{r}
+# getwd()
+download.file("https://cf.10xgenomics.com/samples/cell-exp/3.0.0/pbmc_10k_protein_v3/pbmc_10k_protein_v3_filtered_feature_bc_matrix.h5",
+              destfile = "./pbmc_10k_protein_v3_filtered_feature_bc_matrix.h5")
+```
+
+```{r warning=FALSE}
+# Please install hdf5r to read HDF5 files
+pbmc10k_raw<-Read10X_h5('./pbmc_10k_protein_v3_filtered_feature_bc_matrix.h5')
+```
+
+
+```{r warning=FALSE}
+pbmc10k<-CreateSeuratObject(pbmc10k_raw$`Gene Expression`,assay = 'RNA',project = 'COSG',  min.cells = 5, min.features = 200) 
+```
+
+
+```{r}
+pbmc10k
+```
+
+### Quality control
+
+```{r}
+pbmc10k[["percent.mt"]] <- PercentageFeatureSet(pbmc10k, pattern = "^MT-")
+```
+
+```{r warning=FALSE}
+# Visualize QC metrics as a violin plot
+VlnPlot(pbmc10k, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+
+```{r warning=FALSE}
+plot1 <- FeatureScatter(pbmc10k, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(pbmc10k, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+```
+
+
+```{r}
+pbmc10k <- subset(pbmc10k, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & nCount_RNA < 10000 & nCount_RNA > 500 & percent.mt < 5)
+```
+
+```{r}
+pbmc10k
+```
+
+```{r warning=FALSE}
+plot1 <- FeatureScatter(pbmc10k, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(pbmc10k, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+```
+
+### Normalization
+
+```{r}
+pbmc10k <- NormalizeData(pbmc10k, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+
+### Feature selection
+
+```{r}
+pbmc10k <- FindVariableFeatures(pbmc10k, selection.method = "vst", nfeatures = 2000)
+
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(pbmc10k), 10)
+
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(pbmc10k)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+```
+
+
+```{r warning=FALSE}
+plot2
+```
+
+
+
+### Run PCA
+```{r}
+pbmc10k <- ScaleData(pbmc10k, features = rownames(pbmc10k))
+pbmc10k <- RunPCA(pbmc10k, features = VariableFeatures(object = pbmc10k))
+```
+
+### Run Clustering
+
+```{r message=FALSE, warning=FALSE}
+pbmc10k <- FindNeighbors(pbmc10k, dims = 1:15)
+pbmc10k <- FindClusters(pbmc10k
+                        # resolution = 0.5
+                        )
+```
+
+### Run UMAP
+
+```{r message=FALSE, warning=FALSE}
+pbmc10k <- RunUMAP(pbmc10k, dims = 1:15)
+```
+
+
+```{r}
+DimPlot(pbmc10k, reduction = "umap")
+```
+
+
+
+### Run COSG
+
+```{r}
+marker_cosg<-cosg(
+  pbmc10k,
+  groups='all',
+  assay='RNA',
+  slot='data',
+  mu=1,
+  n_genes_user=2000)
+```
+
+### Check the marker genes
+
+Check markers:
+```{r}
+head(marker_cosg$names)
+```
+
+Check scores:
+```{r}
+head(marker_cosg$scores)
+```
+
+```{r}
+top_list<-c()
+for (group in colnames(marker_cosg$names)){
+    top_i<-marker_cosg$names[group][1:5,1]
+    top_list<-c(top_list,top_i)
+}
+```
+
+
+```{r fig.height=5, fig.width=16}
+DotPlot(pbmc10k, 
+        assay = 'RNA',
+        # scale=TRUE,
+        features =  unique(top_list)) + RotatedAxis()
+```
+
+
+```{r fig.height=12, fig.width=20}
+DoHeatmap(pbmc10k, 
+        assay = 'RNA',
+        features =  top_list) 
+```
