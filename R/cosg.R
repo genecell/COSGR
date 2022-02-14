@@ -53,7 +53,7 @@ cosg<-function(
     if (groups == 'all'){
         group_info <- Seurat::Idents(object = object)
     }else{ 
-        object <- Seurat::subset(x = object, idents = groups)
+        object <- subset(x = object, idents = groups)
         group_info <- Seurat::Idents(object = object)
     }
     
