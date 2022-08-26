@@ -102,8 +102,8 @@ cosg<-function(
          genexlambda[pos_nonzero]=genexlambda[pos_nonzero]/(replicate(ncol(genexlambda),e_power2_sum)[as.matrix(pos_nonzero)])
     }else{
         genexlambda[pos_nonzero]=genexlambda[pos_nonzero]/((
-            (1-mu)*genexlambda[pos_nonzero] + mu * (replicate(ncol(genexlambda),e_power2_sum))
-        )[as.matrix(pos_nonzero)])
+            (1-mu)*genexlambda[pos_nonzero] + mu * (replicate(ncol(genexlambda),e_power2_sum)[as.matrix(pos_nonzero)])
+        ))
     }
 
     genexlambda=genexlambda*cosine_sim
