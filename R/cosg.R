@@ -120,6 +120,15 @@ cosg<-function(
     for (group_i in groups_order){
         idx_i=group_info==group_i 
         scores=genexlambda[,order_i]
+      
+        ### Mask these genes expressed in less than given percentage of cells in the cluster of interest
+        if(remove_lowly_expressed){
+            # https://stackoverflow.com/questions/51560456/r-package-matrix-get-number-of-non-zero-entries-per-rows-columns-of-a-sparse
+            n_cells_expressed=tabulate(genexcell[,idx_i]@i + 1)
+            n_cells_i=sum(idx_i)
+            scores[n_cells_expressed<n_cells_i*expressed_pct]= -1
+        }
+      
         global_indices = select_top_n(scores, n_genes_user)
         rank_stats_names[,order_i]=gene_name[global_indices]
         rank_stats_scores[,order_i]=scores[global_indices]
