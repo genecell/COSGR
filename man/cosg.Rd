@@ -20,9 +20,9 @@ cosg(
 
 \item{mu}{The penalty factor to penalize gene expression in cells not belonging to the cluster of interest}
   
-\item{remove_lowly_expressed}{If True, genes that express a percentage of target cells smaller than a specific value (`expressed_pct`) are not considered as marker genes for the target cells. The default value is True.}
+\item{remove_lowly_expressed}{If TRUE, genes that express a percentage of target cells smaller than a specific value (`expressed_pct`) are not considered as marker genes for the target cells. The default value is TRUE.}
 
-\item{expressed_pct}{When `remove_lowly_expressed` is set to True, genes that express a percentage of target cells smaller than a specific value (`expressed_pct`) are not considered as marker genes for the target cells. The default value for `expressed_pct`
+\item{expressed_pct}{When `remove_lowly_expressed` is set to TRUE, genes that express a percentage of target cells smaller than a specific value (`expressed_pct`) are not considered as marker genes for the target cells. The default value for `expressed_pct`
         is 0.1 (10%).}
   
 \item{n_genes_user}{Number of top ranked genes returned in the result}
