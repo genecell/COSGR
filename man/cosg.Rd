@@ -10,6 +10,8 @@ cosg(
   assay = "RNA",
   slot = "data",
   mu = 1,
+  remove_lowly_expressed=TRUE,
+  expressed_pct=0.1,
   n_genes_user = 100
 )
 }
@@ -22,8 +24,7 @@ cosg(
   
 \item{remove_lowly_expressed}{If TRUE, genes that express a percentage of target cells smaller than a specific value (expressed_pct) are not considered as marker genes for the target cells. The default value is TRUE.}
 
-\item{expressed_pct}{When remove_lowly_expressed is set to TRUE, genes that express a percentage of target cells smaller than a specific value (expressed_pct) are not considered as marker genes for the target cells. The default value for expressed_pct
-        is 0.1 (10%).}
+\item{expressed_pct}{When remove_lowly_expressed is set to TRUE, genes that express a percentage of target cells smaller than a specific value (expressed_pct) are not considered as marker genes for the target cells.}
   
 \item{n_genes_user}{Number of top ranked genes returned in the result}
 }
