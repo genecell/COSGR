@@ -44,6 +44,8 @@ cosg<-function(
     assay='RNA',
     slot='data',
     mu=1,
+    remove_lowly_expressed=TRUE,
+    expressed_pct=0.1,
     n_genes_user=100
 ){
    
