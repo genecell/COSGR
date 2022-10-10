@@ -70,6 +70,10 @@ marker_cosg <- cosg(
  n_genes_user=100)
 ```
 
+### Tip
+1. If you would like to identify more specific marker genes, you could assign `mu` to larger values, such as `mu=10` or `mu=100`.
+2. You could set the parameter `remove_lowly_expressed` to `TRUE` to not consider genes expressed very lowly in the target cell group, and you can use the parameter `expressed_pct` to adjust the threshold for the percentage.
+
 ### Citation
 
 If COSG is useful for your research, please consider citing [Dai, M., Pei, X., Wang, X.-J., 2022. Accurate and fast cell marker gene identification with COSG. Brief. Bioinform. bbab579](https://academic.oup.com/bib/advance-article-abstract/doi/10.1093/bib/bbab579/6511197?redirectedFrom=fulltext). 
