@@ -72,7 +72,18 @@ marker_cosg <- cosg(
 
 ### Tip
 1. If you would like to identify more specific marker genes, you could assign `mu` to larger values, such as `mu=10` or `mu=100`.
-2. You could set the parameter `remove_lowly_expressed` to `TRUE` to not consider genes expressed very lowly in the target cell group, and you can use the parameter `expressed_pct` to adjust the threshold for the percentage.
+2. You could set the parameter `remove_lowly_expressed` to `TRUE` to not consider genes expressed very lowly in the target cell group, and you can use the parameter `expressed_pct` to adjust the threshold for the percentage. For example:
+```
+marker_cosg<-cosg(
+    seo,
+  groups='all',
+  assay='peaks',
+  slot='RNA',
+  mu=100,
+  remove_lowly_expressed=TRUE,
+  expressed_pct=0.1,
+  n_genes_user=100)
+```
 
 ### Citation
 
