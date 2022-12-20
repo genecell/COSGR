@@ -52,11 +52,17 @@ cosg<-function(
     ### Obtain the cellxgene data
     genexcell<-Seurat::GetAssayData(object = object[[assay]], slot = slot)
 
-    if (groups == 'all'){
-        group_info <- Seurat::Idents(object = object)
-    }else{ 
+    if (length(groups)>1){
         object <- subset(x = object, idents = groups)
         group_info <- Seurat::Idents(object = object)
+        
+    }else{
+        if (groups == 'all'){
+           group_info <- Seurat::Idents(object = object)
+        }else{
+          stop('Cannot perform marker gene identification on a single cluster. Please reset the groups variable.')
+        }
+        
     }
     
 
