@@ -24,6 +24,12 @@ remotes::install_github(repo = 'genecell/COSGR')
 
 Please check out the [vignette](https://github.com/genecell/COSGR/blob/master/vignettes/quick_start.Rmd) and the [PBMC10K tutorial](https://github.com/genecell/COSGR/blob/master/vignettes/pbmc10k_tutorial_cosg.Rmd) to get started.
 
+
+Note I: we released our Python toolkit, [PIASO](https://piaso.org), in which some methods were built upon COSG.
+
+Note II: we have also recently released [PIASOmarkerDB](https://piaso.org/piasomarkerdb), a cell type marker gene database for the single-cell and spatial transcriptomics community!
+
+
 ```
 suppressMessages(library(Seurat))
 data('pbmc_small',package='Seurat')
