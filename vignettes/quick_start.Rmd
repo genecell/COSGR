@@ -6,7 +6,7 @@ output: rmarkdown::html_vignette
 vignette: >
     %\VignetteIndexEntry{Quick start to COSG}
     %\VignetteEngine{knitr::rmarkdown}
-    %\VignetteEncoding{UTF-8} 
+    %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +21,7 @@ COSG is a cosine similarity-based method for more accurate and scalable marker g
 * Marker genes or genomic regions identified by COSG are more indicative and with greater cell-type specificity.
 * COSG is ultrafast for large-scale datasets, and is capable of identifying marker genes for one million cells in less than two minutes.
 
-The method and benchmarking results are described in [Dai et al., (2021)](https://www.biorxiv.org/content/10.1101/2021.06.15.448484v1).
+The method and benchmarking results are described in [Dai et al., (2022)](https://academic.oup.com/bib/advance-article-abstract/doi/10.1093/bib/bbab579/6511197?redirectedFrom=fulltext).
 
 
 ### Installation
@@ -34,20 +34,21 @@ remotes::install_github(repo = 'genecell/COSGR')
 ```
 
 
-Load the library:
+Load the library and data:
 ```{r}
-library(COSG) 
-library(Seurat) 
+library(COSG)
+library(Seurat)
+data('pbmc_small')
 ```
 
 ### Run COSG
 
 ```{r}
-marker_cosg<-cosg(
+marker_cosg <- cosg(
   pbmc_small,
   groups='all',
   assay='RNA',
-  slot='data',
+  layer='data',
   mu=1,
   n_genes_user=2000)
 ```
@@ -64,17 +65,17 @@ head(marker_cosg$scores)
 ```
 
 ```{r}
-top_list<-c()
+top_list <- c()
 for (group in colnames(marker_cosg$names)){
-    top_i<-marker_cosg$names[group][1:10,1]
-    top_list<-c(top_list,top_i)
+    top_i <- marker_cosg$names[group][1:10,1]
+    top_list <- c(top_list, top_i)
 }
 ```
 
 Expression pattern:
 ```{r fig.height=5, fig.width=16}
-DotPlot(pbmc_small, 
+DotPlot(pbmc_small,
         assay = 'RNA',
-        features =  unique(top_list)) + RotatedAxis()
+        features = unique(top_list)) + RotatedAxis()
 ```
 

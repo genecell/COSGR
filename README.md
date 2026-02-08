@@ -15,18 +15,37 @@ Here is the R version for COSG, and the python version is hosted in https://gith
 
 ### Installation
 
-```
+#### Install from GitHub (recommended)
+
+```r
 # install.packages('remotes')
 remotes::install_github(repo = 'genecell/COSGR')
 ```
 
+#### Install from conda-forge
+
+```bash
+conda install -c conda-forge r-cosg
+```
+
+#### Install from source
+
+```bash
+git clone https://github.com/genecell/COSGR.git
+R CMD INSTALL COSGR
+```
+
 ### Seurat v5 Compatibility
 
-COSGR v1.0.0+ is fully compatible with Seurat v3, v4, and v5.
+COSG v1.0.0+ is fully compatible with Seurat v3, v4, and v5.
 
 For **Seurat v5** users, use the `layer` parameter:
 
 ```r
+library(COSG)
+library(Seurat)
+data('pbmc_small')
+
 marker_cosg <- cosg(
   pbmc_small,
   groups='all',
@@ -39,6 +58,10 @@ marker_cosg <- cosg(
 For **Seurat v3/v4** users, the `slot` parameter continues to work:
 
 ```r
+library(COSG)
+library(Seurat)
+data('pbmc_small')
+
 marker_cosg <- cosg(
   pbmc_small,
   groups='all',
@@ -52,32 +75,34 @@ marker_cosg <- cosg(
 
 Please check out the [vignette](https://github.com/genecell/COSGR/blob/master/vignettes/quick_start.Rmd) and the [PBMC10K tutorial](https://github.com/genecell/COSGR/blob/master/vignettes/pbmc10k_tutorial_cosg.Rmd) to get started.
 
-
 Note I: we released our Python toolkit, [PIASO](https://piaso.org), in which some methods were built upon COSG.
 
 Note II: we have also recently released [PIASOmarkerDB](https://piaso.org/piasomarkerdb), a cell type marker gene database for the single-cell and spatial transcriptomics community!
 
+#### Basic example
 
-```
-suppressMessages(library(Seurat))
-data('pbmc_small',package='Seurat')
+```r
+library(COSG)
+library(Seurat)
+data('pbmc_small')
+
 # Check cell groups:
 table(Idents(pbmc_small))
 #>
 #>  0  1  2
 #> 36 25 19
-#######
-# Run COSG (Seurat v5 - recommended):
+
+# Run COSG:
 marker_cosg <- cosg(
- pbmc_small,
- groups='all',
- assay='RNA',
- layer='data',
- mu=1,
- n_genes_user=100)
-#######
+  pbmc_small,
+  groups='all',
+  assay='RNA',
+  layer='data',
+  mu=1,
+  n_genes_user=100)
+
 # Check the marker genes:
- head(marker_cosg$names)
+head(marker_cosg$names)
 #>       0      1     2
 #> 1   CD7 S100A8 MS4A1
 #> 2  CCL5   TYMP CD79A
@@ -85,7 +110,8 @@ marker_cosg <- cosg(
 #> 4 LAMP1  FCGRT  NT5C
 #> 5  GZMA IFITM3 CD79B
 #> 6   LCK   LST1 FCER2
- head(marker_cosg$scores)
+
+head(marker_cosg$scores)
 #>           0         1         2
 #> 1 0.6391917 0.8954042 0.6922908
 #> 2 0.6391267 0.8312083 0.5832425
@@ -93,31 +119,43 @@ marker_cosg <- cosg(
 #> 4 0.6164937 0.7755955 0.5533107
 #> 5 0.5846589 0.7413060 0.5163446
 #> 6 0.5795238 0.7380483 0.5115180
-####### Run COSG for selected groups, i.e., '0' and 2':
-#######
-marker_cosg <- cosg(
- pbmc_small,
- groups=c('0', '2'),
- assay='RNA',
- layer='data',
- mu=1,
- n_genes_user=100)
 ```
 
-### Tip
-1. If you would like to identify more specific marker genes, you could assign `mu` to larger values, such as `mu=10` or `mu=100`.
-2. You could set the parameter `remove_lowly_expressed` to `TRUE` to not consider genes expressed very lowly in the target cell group, and you can use the parameter `expressed_pct` to adjust the threshold for the percentage. For example:
+#### Run COSG for selected groups
+
+```r
+library(COSG)
+library(Seurat)
+data('pbmc_small')
+
+# Run COSG for selected groups, i.e., '0' and '2':
+marker_cosg <- cosg(
+  pbmc_small,
+  groups=c('0', '2'),
+  assay='RNA',
+  layer='data',
+  mu=1,
+  n_genes_user=100)
 ```
-marker_region<-cosg(
-    seo,
+
+### Tips
+
+1. If you would like to identify more specific marker genes, you could assign `mu` to larger values, such as `mu=10` or `mu=100`.
+
+2. You could set the parameter `remove_lowly_expressed` to `TRUE` to not consider genes expressed very lowly in the target cell group, and you can use the parameter `expressed_pct` to adjust the threshold for the percentage. For example:
+
+```r
+library(COSG)
+
+marker_region <- cosg(
+  seurat_object,
   groups='all',
   assay='peaks',
   layer='data',
   mu=100,
   n_genes_user=100,
   remove_lowly_expressed=TRUE,
-  expressed_pct=0.1
-)
+  expressed_pct=0.1)
 ```
 
 ### Citation

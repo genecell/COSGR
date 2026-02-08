@@ -41,32 +41,34 @@ select_top_n<-function(scores,n_top){
 #' @importFrom methods as
 #' @importFrom utils packageVersion
 #' @examples
-#' suppressMessages(library(Seurat))
-#' data('pbmc_small',package='Seurat')
+#' library(COSG)
+#' library(Seurat)
+#' data('pbmc_small')
+#'
 #' # Check cell groups:
 #' table(Idents(pbmc_small))
-#' #######
+#'
 #' # Run COSG (Seurat v5 - use layer parameter):
 #' marker_cosg <- cosg(
-#'  pbmc_small,
-#'  groups='all',
-#'  assay='RNA',
-#'  layer='data',
-#'  mu=1,
-#'  n_genes_user=100)
-#' #######
+#'   pbmc_small,
+#'   groups='all',
+#'   assay='RNA',
+#'   layer='data',
+#'   mu=1,
+#'   n_genes_user=100)
+#'
 #' # Run COSG (Seurat v3/v4 - use slot parameter):
 #' # marker_cosg <- cosg(
-#' #  pbmc_small,
-#' #  groups='all',
-#' #  assay='RNA',
-#' #  slot='data',
-#' #  mu=1,
-#' #  n_genes_user=100)
-#' #######
+#' #   pbmc_small,
+#' #   groups='all',
+#' #   assay='RNA',
+#' #   slot='data',
+#' #   mu=1,
+#' #   n_genes_user=100)
+#'
 #' # Check the marker genes:
-#'  head(marker_cosg$names)
-#'  head(marker_cosg$scores)
+#' head(marker_cosg$names)
+#' head(marker_cosg$scores)
 
 cosg<-function(
     object,

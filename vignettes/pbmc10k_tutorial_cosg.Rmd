@@ -134,11 +134,11 @@ DimPlot(pbmc10k, reduction = "umap")
 ### Run COSG
 
 ```{r}
-marker_cosg<-cosg(
+marker_cosg <- cosg(
   pbmc10k,
   groups='all',
   assay='RNA',
-  slot='data',
+  layer='data',
   mu=1,
   n_genes_user=2000)
 ```
