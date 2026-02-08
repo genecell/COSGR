@@ -1,3 +1,6 @@
+# Suppress R CMD check NOTE about data.table NSE
+utils::globalVariables("x")
+
 select_top_n<-function(scores,n_top){
   d <- data.frame(
     x   = data.table::copy(scores),
@@ -13,26 +16,53 @@ select_top_n<-function(scores,n_top){
 #'
 #' Marker gene identification for cell groups in a given dataset.
 #'
+#' @param object A Seurat object
+#' @param groups Character vector of cluster names to compare, or 'all' for all clusters
 #' @param assay Assay to use in marker gene identification
-#' @param slot Slot to pull data from
+#' @param slot Character. The slot name for expression data extraction (Seurat v3/v4).
+#'   For Seurat v5, use the 'layer' parameter instead. Default: 'data'.
+#' @param layer Character. The layer name for expression data extraction (Seurat v5).
+#'   If NULL, falls back to the 'slot' parameter for backward compatibility. Default: NULL.
 #' @param mu The penalty factor to penalize gene expression in cells not belonging to the cluster of interest
+#' @param remove_lowly_expressed Logical. If TRUE, genes that express a percentage of target
+#'   cells smaller than a specific value (expressed_pct) are not considered as marker genes
+#'   for the target cells. Default: TRUE.
+#' @param expressed_pct Numeric. When remove_lowly_expressed is TRUE, genes that express
+#'   a percentage of target cells smaller than this value are not considered as marker genes.
+#'   Default: 0.1.
 #' @param n_genes_user Number of top ranked genes returned in the result
 #' @return A list containing two dataframes for ranked marker genes' names and scores, respectively
+#' @note This function is compatible with Seurat v3, v4, and v5. For Seurat v5 users,
+#'   we recommend using the 'layer' parameter. The 'slot' parameter is kept for backward
+#'   compatibility with Seurat v3/v4.
 #' @export
+#' @importFrom SeuratObject GetAssayData Idents
+#' @importFrom Matrix rowSums
+#' @importFrom methods as
+#' @importFrom utils packageVersion
 #' @examples
 #' suppressMessages(library(Seurat))
 #' data('pbmc_small',package='Seurat')
 #' # Check cell groups:
 #' table(Idents(pbmc_small))
 #' #######
-#' # Run COSG:
+#' # Run COSG (Seurat v5 - use layer parameter):
 #' marker_cosg <- cosg(
 #'  pbmc_small,
 #'  groups='all',
 #'  assay='RNA',
-#'  slot='data',
+#'  layer='data',
 #'  mu=1,
 #'  n_genes_user=100)
+#' #######
+#' # Run COSG (Seurat v3/v4 - use slot parameter):
+#' # marker_cosg <- cosg(
+#' #  pbmc_small,
+#' #  groups='all',
+#' #  assay='RNA',
+#' #  slot='data',
+#' #  mu=1,
+#' #  n_genes_user=100)
 #' #######
 #' # Check the marker genes:
 #'  head(marker_cosg$names)
@@ -43,28 +73,60 @@ cosg<-function(
     groups='all',
     assay='RNA',
     slot='data',
+    layer=NULL,
     mu=1,
     remove_lowly_expressed=TRUE,
     expressed_pct=0.1,
     n_genes_user=100
 ){
-   
-    ### Obtain the cellxgene data
-    genexcell<-Seurat::GetAssayData(object = object[[assay]], slot = slot)
+    # Resolve: layer takes precedence over slot
+    data_layer <- if (!is.null(layer)) layer else slot
+
+    # Runtime detection for SeuratObject version and assay type
+    assay_obj <- object[[assay]]
+    is_v5_assay <- inherits(assay_obj, "StdAssay") || inherits(assay_obj, "Assay5")
+    seuratobj_v5 <- utils::packageVersion("SeuratObject") >= "5.0.0"
+
+    # Obtain the gene x cell expression matrix with version-appropriate method
+    if (is_v5_assay && seuratobj_v5) {
+        # ---- Seurat v5 with v5 Assay object ----
+        # Layers() and JoinLayers() only exist in SeuratObject >= 5.0.0
+        # Call via :: (NOT imported in NAMESPACE)
+        available_layers <- SeuratObject::Layers(assay_obj)
+        matching_layers <- grep(paste0("^", data_layer), available_layers, value = TRUE)
+        if (length(matching_layers) > 1) {
+            message("COSG: Multiple '", data_layer, "' layers detected, joining layers...")
+            object <- SeuratObject::JoinLayers(object, assay = assay)
+        }
+        genexcell <- SeuratObject::GetAssayData(object, assay = assay, layer = data_layer)
+    } else if (seuratobj_v5) {
+        # ---- SeuratObject >= 5.0.0 but old Assay class object ----
+        # Use layer= to avoid defunct slot= on >= 5.3.0
+        genexcell <- SeuratObject::GetAssayData(object, assay = assay, layer = data_layer)
+    } else {
+        # ---- SeuratObject < 5.0.0 (v3/v4) ----
+        # Safe to use slot=
+        genexcell <- SeuratObject::GetAssayData(object, assay = assay, slot = data_layer)
+    }
+
+    # Ensure sparse matrix (SCT assay can return dense)
+    if (!inherits(genexcell, "dgCMatrix")) {
+        genexcell <- methods::as(genexcell, "dgCMatrix")
+    }
 
     if (length(groups)>1){
         object <- subset(x = object, idents = groups)
-        group_info <- Seurat::Idents(object = object)
-        
+        group_info <- SeuratObject::Idents(object = object)
+
     }else{
         if (groups == 'all'){
-           group_info <- Seurat::Idents(object = object)
+           group_info <- SeuratObject::Idents(object = object)
         }else{
           stop('Cannot perform marker gene identification on a single cluster. Please reset the groups variable.')
         }
-        
+
     }
-    
+
 
     ### unique groups
     groups_order=sort(unique(group_info))
@@ -72,12 +134,12 @@ cosg<-function(
 
     if (n_cluster == 1){
         stop('Cannot perform marker gene identification on a single cluster.')}
-    
+
 
     n_cell=ncol(genexcell)
     n_gene=nrow(genexcell)
     gene_name=rownames(genexcell)
-    
+
     ### If sepcifying too many genes to return
     if (n_genes_user>n_gene){
         n_genes_user=n_gene
@@ -89,7 +151,7 @@ cosg<-function(
     order_i=1
     ### Set gene lambda and gene omega
     for (group_i in groups_order){
-        idx_i=group_info==group_i 
+        idx_i=group_info==group_i
         cluster_mat[order_i,idx_i]=1
         order_i=order_i+1
     }
@@ -98,10 +160,10 @@ cosg<-function(
     cluster_mat_sparse=as(cluster_mat, "dgCMatrix")
     ### Calculate the cosine similarity
     cosine_sim=proxyC::simil(genexcell,cluster_mat_sparse, method = "cosine",drop0=TRUE)
-    
+
     pos_nonzero = cosine_sim != 0
     pos_nonzero=which(as.matrix(pos_nonzero),arr.ind = TRUE)
-    
+
     #### Second-stage
     genexlambda=cosine_sim*cosine_sim
     e_power2_sum=Matrix::rowSums(genexlambda)
@@ -126,9 +188,9 @@ cosg<-function(
     order_i=1
     ### Set gene lambda and gene omega
     for (group_i in groups_order){
-        idx_i=group_info==group_i 
+        idx_i=group_info==group_i
         scores=genexlambda[,order_i]
-      
+
         ### Mask these genes expressed in less than given percentage of cells in the cluster of interest
         if(remove_lowly_expressed){
             # https://stackoverflow.com/questions/51560456/r-package-matrix-get-number-of-non-zero-entries-per-rows-columns-of-a-sparse
@@ -136,7 +198,7 @@ cosg<-function(
             n_cells_i=sum(idx_i)
             scores[n_cells_expressed<n_cells_i*expressed_pct]= -1
         }
-      
+
         global_indices = select_top_n(scores, n_genes_user)
         rank_stats_names[,order_i]=gene_name[global_indices]
         rank_stats_scores[,order_i]=scores[global_indices]
@@ -144,10 +206,10 @@ cosg<-function(
         ### save the group names
         order_i=order_i+1
     }
-    
+
     colnames(rank_stats_names) <- groups_order
     colnames(rank_stats_scores) <- groups_order
-    
+
     ###
     ranks_stats=list(
         names=rank_stats_names,

@@ -20,6 +20,34 @@ Here is the R version for COSG, and the python version is hosted in https://gith
 remotes::install_github(repo = 'genecell/COSGR')
 ```
 
+### Seurat v5 Compatibility
+
+COSGR v1.0.0+ is fully compatible with Seurat v3, v4, and v5.
+
+For **Seurat v5** users, use the `layer` parameter:
+
+```r
+marker_cosg <- cosg(
+  pbmc_small,
+  groups='all',
+  assay='RNA',
+  layer='data',    # Use 'layer' for Seurat v5
+  mu=1,
+  n_genes_user=100)
+```
+
+For **Seurat v3/v4** users, the `slot` parameter continues to work:
+
+```r
+marker_cosg <- cosg(
+  pbmc_small,
+  groups='all',
+  assay='RNA',
+  slot='data',     # Use 'slot' for Seurat v3/v4
+  mu=1,
+  n_genes_user=100)
+```
+
 ### Usage
 
 Please check out the [vignette](https://github.com/genecell/COSGR/blob/master/vignettes/quick_start.Rmd) and the [PBMC10K tutorial](https://github.com/genecell/COSGR/blob/master/vignettes/pbmc10k_tutorial_cosg.Rmd) to get started.
@@ -35,16 +63,16 @@ suppressMessages(library(Seurat))
 data('pbmc_small',package='Seurat')
 # Check cell groups:
 table(Idents(pbmc_small))
-#> 
-#>  0  1  2 
-#> 36 25 19 
+#>
+#>  0  1  2
+#> 36 25 19
 #######
-# Run COSG:
+# Run COSG (Seurat v5 - recommended):
 marker_cosg <- cosg(
  pbmc_small,
  groups='all',
  assay='RNA',
- slot='data',
+ layer='data',
  mu=1,
  n_genes_user=100)
 #######
@@ -71,7 +99,7 @@ marker_cosg <- cosg(
  pbmc_small,
  groups=c('0', '2'),
  assay='RNA',
- slot='data',
+ layer='data',
  mu=1,
  n_genes_user=100)
 ```
@@ -84,7 +112,7 @@ marker_region<-cosg(
     seo,
   groups='all',
   assay='peaks',
-  slot='data',
+  layer='data',
   mu=100,
   n_genes_user=100,
   remove_lowly_expressed=TRUE,
@@ -94,4 +122,4 @@ marker_region<-cosg(
 
 ### Citation
 
-If COSG is useful for your research, please consider citing [Dai, M., Pei, X., Wang, X.-J., 2022. Accurate and fast cell marker gene identification with COSG. Brief. Bioinform. bbab579](https://academic.oup.com/bib/advance-article-abstract/doi/10.1093/bib/bbab579/6511197?redirectedFrom=fulltext). 
+If COSG is useful for your research, please consider citing [Dai, M., Pei, X., Wang, X.-J., 2022. Accurate and fast cell marker gene identification with COSG. Brief. Bioinform. bbab579](https://academic.oup.com/bib/advance-article-abstract/doi/10.1093/bib/bbab579/6511197?redirectedFrom=fulltext).

@@ -1,0 +1,43 @@
+# R/RStudio build artifacts
+.Rproj.user/
+.Rhistory
+.Rdata
+.RData
+.httr-oauth
+*.Rproj
+
+# Package build artifacts
+src/*.o
+src/*.so
+src/*.dll
+*.tar.gz
+COSG*.tar.gz
+
+# Test/check artifacts
+*.Rcheck/
+COSG.Rcheck/
+revdep/
+
+# Claude Code artifacts
+.claude/
+.claudeignore
+
+# IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+.directory
+
+# Conda/env
+.conda/
+__pycache__/
+
+# Temp/test files
+test_cosgr_v5.R
+test_quick.sh

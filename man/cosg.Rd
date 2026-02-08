@@ -9,23 +9,36 @@ cosg(
   groups = "all",
   assay = "RNA",
   slot = "data",
+  layer = NULL,
   mu = 1,
-  remove_lowly_expressed=TRUE,
-  expressed_pct=0.1,
+  remove_lowly_expressed = TRUE,
+  expressed_pct = 0.1,
   n_genes_user = 100
 )
 }
 \arguments{
+\item{object}{A Seurat object}
+
+\item{groups}{Character vector of cluster names to compare, or 'all' for all clusters}
+
 \item{assay}{Assay to use in marker gene identification}
 
-\item{slot}{Slot to pull data from}
+\item{slot}{Character. The slot name for expression data extraction (Seurat v3/v4).
+For Seurat v5, use the 'layer' parameter instead. Default: 'data'.}
+
+\item{layer}{Character. The layer name for expression data extraction (Seurat v5).
+If NULL, falls back to the 'slot' parameter for backward compatibility. Default: NULL.}
 
 \item{mu}{The penalty factor to penalize gene expression in cells not belonging to the cluster of interest}
-  
-\item{remove_lowly_expressed}{If TRUE, genes that express a percentage of target cells smaller than a specific value (expressed_pct) are not considered as marker genes for the target cells. The default value is TRUE.}
 
-\item{expressed_pct}{When remove_lowly_expressed is set to TRUE, genes that express a percentage of target cells smaller than a specific value (expressed_pct) are not considered as marker genes for the target cells.}
-  
+\item{remove_lowly_expressed}{Logical. If TRUE, genes that express a percentage of target
+cells smaller than a specific value (expressed_pct) are not considered as marker genes
+for the target cells. Default: TRUE.}
+
+\item{expressed_pct}{Numeric. When remove_lowly_expressed is TRUE, genes that express
+a percentage of target cells smaller than this value are not considered as marker genes.
+Default: 0.1.}
+
 \item{n_genes_user}{Number of top ranked genes returned in the result}
 }
 \value{
@@ -34,20 +47,34 @@ A list containing two dataframes for ranked marker genes' names and scores, resp
 \description{
 Marker gene identification for cell groups in a given dataset.
 }
+\note{
+This function is compatible with Seurat v3, v4, and v5. For Seurat v5 users,
+we recommend using the 'layer' parameter. The 'slot' parameter is kept for backward
+compatibility with Seurat v3/v4.
+}
 \examples{
 suppressMessages(library(Seurat))
 data('pbmc_small',package='Seurat')
 # Check cell groups:
 table(Idents(pbmc_small))
 #######
-# Run COSG:
+# Run COSG (Seurat v5 - use layer parameter):
 marker_cosg <- cosg(
  pbmc_small,
  groups='all',
  assay='RNA',
- slot='data',
+ layer='data',
  mu=1,
  n_genes_user=100)
+#######
+# Run COSG (Seurat v3/v4 - use slot parameter):
+# marker_cosg <- cosg(
+#  pbmc_small,
+#  groups='all',
+#  assay='RNA',
+#  slot='data',
+#  mu=1,
+#  n_genes_user=100)
 #######
 # Check the marker genes:
  head(marker_cosg$names)

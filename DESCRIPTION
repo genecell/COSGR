@@ -1,9 +1,9 @@
 Package: COSG
 Title: Marker Gene Identification for Single Cell Sequencing Data
 Description: COSG is designed for accurate and ultra-fast marker gene identification in single-cell sequencing data. COSG can not only be applied to single-cell RNA-seq data, but also single-cell ATAC-seq data and spatial transcriptomics.
-Version: 0.9.0
+Version: 1.0.0
 Date: 2021-06-17
-Authors@R: 
+Authors@R:
     person(given = "Min",
            family = "Dai",
            role = c("aut", "cre"),
@@ -16,9 +16,13 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     data.table,
+    Matrix,
     proxyC,
-    Seurat
+    SeuratObject (>= 3.0.0),
+    methods,
+    utils
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
-Suggests: 
+RoxygenNote: 7.3.3
+Suggests:
+    Seurat,
     testthat
