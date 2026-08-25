@@ -1,0 +1,18 @@
+citHeader("To cite COSG in publications use:")
+bibentry(
+  bibtype  = "Article",
+  title    = "Accurate and fast cell marker gene identification with COSG",
+  author   = c(person("Min", "Dai"), person("Xiaobing", "Pei"),
+               person("Xiu-Jie", "Wang")),
+  journal  = "Briefings in Bioinformatics",
+  year     = "2022",
+  volume   = "23",
+  number   = "2",
+  pages    = "bbab579",
+  doi      = "10.1093/bib/bbab579",
+  textVersion = paste(
+    "Dai M, Pei X, Wang X-J (2022). Accurate and fast cell marker gene",
+    "identification with COSG. Briefings in Bioinformatics 23(2):bbab579.",
+    "doi:10.1093/bib/bbab579")
+)
+
